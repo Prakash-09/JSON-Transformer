@@ -1,0 +1,6 @@
+.transformer-container textarea {
+    height: 400px;
+    width: 100%;
+    overflow-y: auto;
+
+}
