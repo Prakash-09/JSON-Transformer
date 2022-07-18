@@ -10,27 +10,36 @@ export default class Transform extends React.Component {
 
         this.state = {
             rawJson: [],
-            jsFunction: '',
+            jsFunction: undefined,
             output: []
         }
     }
 
     componentDidMount() {
-        let { rawJson } = this.state;
+        let { rawJson, jsFunction } = this.state;
         rawJson = JSON_DATA
 
-        this.setState({ rawJson: rawJson })
+        jsFunction = `function(input) {
+            input?.map((item, itemIdx) => {
+                item.id = itemIdx + 1
+            })
+            return input
+        }`
+
+        this.setState({ rawJson: rawJson, jsFunction: jsFunction })
     }
 
     action() {
-        let { jsFunction } = this.state;
+        let { rawJson, jsFunction, output } = this.state;
 
         /* eslint no-eval: 0 */
-        let output = eval(jsFunction)
+        jsFunction = eval("(" + jsFunction + ")")
 
-        console.log(output)
+        let rawJsonCopy = JSON.parse(JSON.stringify(rawJson))
 
-        // this.setState({ output: output })
+        output = jsFunction(rawJsonCopy)
+
+        this.setState({ output: output })
     }
 
     render() {
