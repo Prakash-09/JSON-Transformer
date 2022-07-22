@@ -17,29 +17,37 @@ export default class Transform extends React.Component {
 
     componentDidMount() {
         let { rawJson, jsFunction } = this.state;
-        rawJson = JSON_DATA
+        rawJson = JSON_DATA;
 
-        jsFunction = `function(input) {
-            input?.map((item, itemIdx) => {
-                item.id = itemIdx + 1
-            })
-            return input
+        jsFunction = `function transform(input) {
+            let testTag = document.getElementById('test-tag');
+            let newTag = document.createElement("p");
+            let text = document.createTextNode("this is new tag with text")
+            newTag.appendChild(text);
+            testTag.appendChild(newTag);
         }`
 
         this.setState({ rawJson: rawJson, jsFunction: jsFunction })
     }
 
     action() {
+
         let { rawJson, jsFunction, output } = this.state;
+        let validation = jsFunction.search("document")
 
-        /* eslint no-eval: 0 */
-        jsFunction = eval("(" + jsFunction + ")")
+        if (validation === -1) {
+            /* eslint no-eval: 0 */
+            jsFunction = eval("(" + jsFunction + ")")
+            console.log("jsFunction", jsFunction)
 
-        let rawJsonCopy = JSON.parse(JSON.stringify(rawJson))
+            let rawJsonCopy = JSON.parse(JSON.stringify(rawJson))
 
-        output = jsFunction(rawJsonCopy)
+            output = jsFunction(rawJsonCopy)
 
-        this.setState({ output: output })
+            this.setState({ output: output })
+        } else {
+            alert("Restricted DOM elements please don't use")
+        }
     }
 
     render() {
@@ -56,11 +64,11 @@ export default class Transform extends React.Component {
                 </Row>
                 <Row>
                     <Col className='text-right'>
-                        <button onClick={this.action.bind(this)} className={'btn btn-sm btn-round btn-primary'} >
+                        <button onClick={this.action.bind(this, "text", "test")} className={'btn btn-sm btn-round btn-primary'} >
                             <span className={'px-1'}>{'Submit'}</span>
                         </button>
                     </Col>
-                </Row>
+                </Row><div id="test-tag"></div>
                 <Row className='mt-2'>
                     <Col>
                         <textarea name="output" value={JSON.stringify(output, undefined, 4)} onChange={(e) => this.setState({ output: e.target.value })} />
